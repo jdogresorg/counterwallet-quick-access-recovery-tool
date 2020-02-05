@@ -1,0 +1,74 @@
+<html>
+<head>
+    <title>Counterwallet Quick Access Recovery Tool</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container">
+    <h1>Counterwallet Quick Access Recovery Tool</h1>
+    <p>This is a tool which takes a counterwallet quick access url and password and recovers the 12-word passphrase</p>
+    <div class="alert alert-danger" id="error" style="display: none;">
+    </div>
+    <form>
+    <div class="row form-group">
+        <div class="col-3"><label for="code">Quick Access URL</label></div>
+        <div class="col-9"><input type="text" class="form-control" name="url" id="url" required></div>
+    </div>
+    <div class="row form-group">
+        <div class="col-3"><label for="password">Password</label></div>
+        <div class="col-9"><input type="text" class="form-control" name="password" id="password" required></div>
+    </div>
+    <button type="submit" class="btn btn-block btn-success">Recover Passphrase</button>
+    <div class="row form-group mt-3">
+        <div class="col-3"><label for="passphrase">Passphrase</label></div>
+        <div class="col-9"><input type="text" class="form-control" name="passphrase" id="passphrase" readonly></div>
+    </div>
+    </form>
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+<script src="https://wallet.counterwallet.io/js/counterwallet-deps-min.js?v=f865ecd58bce"></script>
+<script src="https://wallet.counterwallet.io/js/counterwallet-min.js?v=5b2359284d6e"></script>
+
+<script type="text/javascript">
+$( document ).ready(function() {
+
+    $('form').submit(function(e){
+        // Prevent actual form submission
+        e.preventDefault();
+        $('#error').hide();
+
+        // Get the quick access url and password and try to decrypt
+        var pass  = $('#password').val(),
+            error = false,
+            url   = String($('#url').val()).split('#');
+        if(url[1]){
+            data  = String(url[1]).substr(3);
+            try {
+                var phrase = CWBitcore.decrypt(data, pass);
+                if(phrase){
+                    $('#passphrase').val(phrase);
+                } else {
+                    error = 'Unable to decode passphrase';
+                }
+            } catch (e){
+                error = 'Invalid Password';
+            }
+        } else {
+            error = 'Invalid Quick Access URL';
+        }
+        if(error){
+            $('#error').show();
+            $('#error').html('Error : ' + error);
+        }
+    })
+
+});    
+
+</script>
+</body>
+</html>
